@@ -21,49 +21,40 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	keystorev4 "github.com/wealdtech/go-eth2-wallet-encryptor-keystorev4"
-	nd "github.com/wealdtech/go-eth2-wallet-nd"
 	filesystem "github.com/wealdtech/go-eth2-wallet-store-filesystem"
 )
 
 func TestStoreRetrieveWallet(t *testing.T) {
-	tests := []struct {
-		name string
-		data []byte
-		err  error
-	}{
-		{
-			name: "Empty",
-			data: []byte{},
-		},
-	}
-
 	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("TestStoreRetrieveWallet-%d", rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path))
-	encryptor := keystorev4.New()
 
-	wallet, err := nd.CreateWallet("test", store, encryptor)
+	walletID := uuid.New()
+	walletName := "test wallet"
+	data := []byte(fmt.Sprintf(`{"id":%q,"name":%q}`, walletID, walletName))
+
+	err := store.StoreWallet(walletID, walletName, data)
 	require.Nil(t, err)
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			err := store.StoreWallet(wallet, test.data)
-			if test.err != nil {
-				require.NotNil(t, err)
-				assert.Equal(t, test.err.Error(), err.Error())
-			} else {
-				require.Nil(t, err)
-				data, err := store.RetrieveWallet("test")
-				require.Nil(t, err)
-				assert.Equal(t, test.data, data)
-			}
-		})
-	}
+	retData, err := store.RetrieveWallet(walletName)
+	require.Nil(t, err)
+	assert.Equal(t, data, retData)
 
 	for range store.RetrieveWallets() {
 	}
+}
+
+func TestRetrieveNonExistentWallet(t *testing.T) {
+	rand.Seed(time.Now().Unix())
+	path := filepath.Join(os.TempDir(), fmt.Sprintf("TestRetrieveNonExistentWallet-%d", rand.Int31()))
+	defer os.RemoveAll(path)
+	store := filesystem.New(filesystem.WithLocation(path))
+
+	walletName := "test wallet"
+
+	_, err := store.RetrieveWallet(walletName)
+	assert.NotNil(t, err)
 }

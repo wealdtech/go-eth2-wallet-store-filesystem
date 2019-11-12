@@ -21,27 +21,34 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/wealdtech/go-ecodec"
-	types "github.com/wealdtech/go-eth2-wallet-types"
 )
 
 // StoreAccount stores an account.  It will fail if it cannot store the data.
 // Note this will overwrite an existing account with the same ID.  It will not, however, allow multiple accounts with the same
 // name to co-exist in the same wallet.
-func (s *Store) StoreAccount(wallet types.Wallet, account types.Account, data []byte) error {
+func (s *Store) StoreAccount(walletID uuid.UUID, walletName string, accountID uuid.UUID, accountName string, data []byte) error {
 	// Ensure the wallet exists
-	walletPath := s.walletPath(wallet.Name())
+	walletPath := s.walletPath(walletName)
 	_, err := os.Stat(walletPath)
 	if err != nil {
 		return fmt.Errorf("no wallet at %q", walletPath)
 	}
 
 	// See if an account with this name already exists
-	existingAccount, err := wallet.AccountByName(account.Name())
+	existingAccount, err := s.RetrieveAccount(walletID, walletName, accountName)
 	if err == nil {
 		// It does; they need to have the same ID for us to overwrite it
-		if existingAccount.ID().String() != account.ID().String() {
-			return fmt.Errorf("account %q already exists", account.Name())
+		info := &struct {
+			ID string `json:"id"`
+		}{}
+		err := json.Unmarshal(existingAccount, info)
+		if err != nil {
+			return err
+		}
+		if info.ID != accountID.String() {
+			return fmt.Errorf("account %q already exists", accountName)
 		}
 	}
 
@@ -53,37 +60,35 @@ func (s *Store) StoreAccount(wallet types.Wallet, account types.Account, data []
 	}
 
 	// Store the data
-	path := s.accountPath(wallet.Name(), account.ID().String())
+	path := s.accountPath(walletName, accountID.String())
 	return ioutil.WriteFile(filepath.FromSlash(path), data, 0700)
 }
 
 // RetrieveAccount retrieves account-level data.  It will fail if it cannot retrieve the data.
-func (s *Store) RetrieveAccount(wallet types.Wallet, name string) ([]byte, error) {
-	type accountName struct {
-		Name string `json:"name"`
-	}
-
-	for acc := range s.RetrieveAccounts(wallet) {
-		info := &accountName{}
+func (s *Store) RetrieveAccount(walletID uuid.UUID, walletName string, accountName string) ([]byte, error) {
+	for acc := range s.RetrieveAccounts(walletID, walletName) {
+		info := &struct {
+			Name string `json:"name"`
+		}{}
 		err := json.Unmarshal(acc, info)
-		if err == nil && info.Name == name {
+		if err == nil && info.Name == accountName {
 			return acc, nil
 		}
 	}
-	return nil, fmt.Errorf("no account %q", name)
+	return nil, fmt.Errorf("no account %q", accountName)
 }
 
 // RetrieveAccounts retrieves all account-level data for a wallet.
-func (s *Store) RetrieveAccounts(wallet types.Wallet) <-chan []byte {
+func (s *Store) RetrieveAccounts(id uuid.UUID, name string) <-chan []byte {
 	ch := make(chan []byte, 1024)
 	go func() {
-		files, err := ioutil.ReadDir(s.walletPath(wallet.Name()))
+		files, err := ioutil.ReadDir(s.walletPath(name))
 		if err == nil {
 			for _, file := range files {
 				if file.Name() == "_header.json" {
 					continue
 				}
-				data, err := ioutil.ReadFile(s.accountPath(wallet.Name(), strings.TrimSuffix(file.Name(), ".json")))
+				data, err := ioutil.ReadFile(s.accountPath(name, strings.TrimSuffix(file.Name(), ".json")))
 				if err != nil {
 					continue
 				}
