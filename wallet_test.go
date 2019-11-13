@@ -35,7 +35,7 @@ func TestStoreRetrieveWallet(t *testing.T) {
 
 	walletID := uuid.New()
 	walletName := "test wallet"
-	data := []byte(fmt.Sprintf(`{"id":%q,"name":%q}`, walletID, walletName))
+	data := []byte(fmt.Sprintf(`{"uuid":%q,"name":%q}`, walletID, walletName))
 
 	err := store.StoreWallet(walletID, walletName, data)
 	require.Nil(t, err)

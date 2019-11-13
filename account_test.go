@@ -37,7 +37,7 @@ func TestStoreRetrieveAccount(t *testing.T) {
 	walletName := "test wallet"
 	accountID := uuid.New()
 	accountName := "test account"
-	data := []byte(fmt.Sprintf(`{"name":"%s","id":"%s"}`, accountName, accountID.String()))
+	data := []byte(fmt.Sprintf(`{"name":%q,"uuid":%q}`, accountName, accountID.String()))
 
 	err := store.StoreWallet(walletID, walletName, data)
 	require.Nil(t, err)
@@ -63,7 +63,7 @@ func TestDuplicateAccounts(t *testing.T) {
 	walletName := "test wallet"
 	accountID := uuid.New()
 	accountName := "test account"
-	data := []byte(fmt.Sprintf(`{"name":"%s","id":"%s"}`, accountName, accountID.String()))
+	data := []byte(fmt.Sprintf(`{"name":%q,"uuid":%q}`, accountName, accountID.String()))
 
 	err := store.StoreWallet(walletID, walletName, data)
 	require.Nil(t, err)
@@ -103,7 +103,7 @@ func TestStoreNonExistentAccount(t *testing.T) {
 	walletName := "test wallet"
 	accountID := uuid.New()
 	accountName := "test account"
-	data := []byte(fmt.Sprintf(`"id":%q,"name":%q}`, accountID, accountName))
+	data := []byte(fmt.Sprintf(`"uuid":%q,"name":%q}`, accountID, accountName))
 
 	err := store.StoreAccount(walletID, walletName, accountID, accountName, data)
 	assert.NotNil(t, err)
