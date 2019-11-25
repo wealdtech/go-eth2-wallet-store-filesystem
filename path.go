@@ -2,16 +2,18 @@ package filesystem
 
 import (
 	"path/filepath"
+
+	"github.com/google/uuid"
 )
 
-func (s *Store) walletPath(walletName string) string {
-	return filepath.FromSlash(filepath.Join(s.location, walletName))
+func (s *Store) walletPath(walletID uuid.UUID) string {
+	return filepath.FromSlash(filepath.Join(s.location, walletID.String()))
 }
 
-func (s *Store) walletHeaderPath(walletName string) string {
-	return filepath.FromSlash(filepath.Join(s.location, walletName, "_header.json"))
+func (s *Store) walletHeaderPath(walletID uuid.UUID) string {
+	return filepath.FromSlash(filepath.Join(s.location, walletID.String(), walletID.String()))
 }
 
-func (s *Store) accountPath(walletName string, accountName string) string {
-	return filepath.FromSlash(filepath.Join(s.location, walletName, accountName+".json"))
+func (s *Store) accountPath(walletID uuid.UUID, accountID uuid.UUID) string {
+	return filepath.FromSlash(filepath.Join(s.location, walletID.String(), accountID.String()))
 }

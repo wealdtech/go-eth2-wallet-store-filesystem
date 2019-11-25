@@ -14,20 +14,20 @@
 package filesystem
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"github.com/wealdtech/go-ecodec"
 )
 
 // StoreWallet stores wallet-level data.  It will fail if it cannot store the data.
 // Note that this will overwrite any existing data; it is up to higher-level functions to check for the presence of a wallet with
 // the wallet name and handle clashes accordingly.
-func (s *Store) StoreWallet(id uuid.UUID, name string, data []byte) error {
-	path := s.walletPath(name)
+func (s *Store) StoreWallet(walletID uuid.UUID, walletName string, data []byte) error {
+	path := s.walletPath(walletID)
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(path, 0700)
@@ -35,36 +35,39 @@ func (s *Store) StoreWallet(id uuid.UUID, name string, data []byte) error {
 			return fmt.Errorf("failed to create wallet at %s", path)
 		}
 	}
-
-	if len(s.passphrase) > 0 {
-		data, err = ecodec.Encrypt(data, s.passphrase)
-		if err != nil {
-			return errors.Wrap(err, "failed to encrypt wallet")
-		}
+	data, err = s.encryptIfRequired(data)
+	if err != nil {
+		return err
 	}
-	return ioutil.WriteFile(s.walletHeaderPath(name), data, 0700)
+	return ioutil.WriteFile(s.walletHeaderPath(walletID), data, 0700)
 }
 
 // RetrieveWallet retrieves wallet-level data.  It will fail if it cannot retrieve the data.
-func (s *Store) RetrieveWallet(name string) ([]byte, error) {
-	path := s.walletPath(name)
-	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return nil, fmt.Errorf("no wallet at %s", path)
-	}
-
-	data, err := ioutil.ReadFile(s.walletHeaderPath(name))
-	if err != nil {
-		return nil, err
-	}
-
-	if len(s.passphrase) > 0 {
-		data, err = ecodec.Decrypt(data, s.passphrase)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to decrypt wallet")
+func (s *Store) RetrieveWallet(walletName string) ([]byte, error) {
+	for data := range s.RetrieveWallets() {
+		info := &struct {
+			Name string `json:"name"`
+		}{}
+		err := json.Unmarshal(data, info)
+		if err == nil && info.Name == walletName {
+			return data, nil
 		}
 	}
-	return data, nil
+	return nil, errors.New("wallet not found")
+}
+
+// RetrieveWalletByID retrieves wallet-level data.  It will fail if it cannot retrieve the data.
+func (s *Store) RetrieveWalletByID(walletID uuid.UUID) ([]byte, error) {
+	for data := range s.RetrieveWallets() {
+		info := &struct {
+			ID uuid.UUID `json:"uuid"`
+		}{}
+		err := json.Unmarshal(data, info)
+		if err == nil && info.ID == walletID {
+			return data, nil
+		}
+	}
+	return nil, errors.New("wallet not found")
 }
 
 // RetrieveWallets retrieves wallet-level data for all wallets.
@@ -74,7 +77,18 @@ func (s *Store) RetrieveWallets() <-chan []byte {
 		dirs, err := ioutil.ReadDir(s.location)
 		if err == nil {
 			for _, dir := range dirs {
-				data, err := s.RetrieveWallet(dir.Name())
+				if !dir.IsDir() {
+					continue
+				}
+				walletID, err := uuid.Parse(dir.Name())
+				if err != nil {
+					continue
+				}
+				data, err := ioutil.ReadFile(s.walletHeaderPath(walletID))
+				if err != nil {
+					continue
+				}
+				data, err = s.decryptIfRequired(data)
 				if err != nil {
 					continue
 				}

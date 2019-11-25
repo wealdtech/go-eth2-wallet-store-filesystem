@@ -30,26 +30,30 @@ import (
 func TestStoreRetrieveAccount(t *testing.T) {
 	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%d", t.Name(), rand.Int31()))
-	defer os.RemoveAll(path)
+	//	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path))
 
 	walletID := uuid.New()
 	walletName := "test wallet"
+	walletData := []byte(fmt.Sprintf(`{"name":%q,"uuid":%q}`, walletName, walletID.String()))
 	accountID := uuid.New()
 	accountName := "test account"
-	data := []byte(fmt.Sprintf(`{"name":%q,"uuid":%q}`, accountName, accountID.String()))
+	accountData := []byte(fmt.Sprintf(`{"name":%q,"uuid":%q}`, accountName, accountID.String()))
 
-	err := store.StoreWallet(walletID, walletName, data)
+	err := store.StoreWallet(walletID, walletName, walletData)
 	require.Nil(t, err)
-	err = store.StoreAccount(walletID, walletName, accountID, accountName, data)
+	err = store.StoreAccount(walletID, accountID, accountName, accountData)
 	require.Nil(t, err)
-	retData, err := store.RetrieveAccount(walletID, walletName, accountName)
+	retData, err := store.RetrieveAccount(walletID, accountName)
 	require.Nil(t, err)
-	assert.Equal(t, data, retData)
+	assert.Equal(t, accountData, retData)
+	retData, err = store.RetrieveAccountByID(walletID, accountID)
+	require.Nil(t, err)
+	assert.Equal(t, accountData, retData)
 
 	store.RetrieveWallets()
 
-	_, err = store.RetrieveAccount(walletID, walletName, "not present")
+	_, err = store.RetrieveAccount(walletID, "not present")
 	assert.NotNil(t, err)
 }
 
@@ -61,21 +65,22 @@ func TestDuplicateAccounts(t *testing.T) {
 
 	walletID := uuid.New()
 	walletName := "test wallet"
+	walletData := []byte(fmt.Sprintf(`{"name":%q,"uuid":%q}`, walletName, walletID.String()))
 	accountID := uuid.New()
 	accountName := "test account"
-	data := []byte(fmt.Sprintf(`{"name":%q,"uuid":%q}`, accountName, accountID.String()))
+	accountData := []byte(fmt.Sprintf(`{"name":%q,"uuid":%q}`, accountName, accountID.String()))
 
-	err := store.StoreWallet(walletID, walletName, data)
+	err := store.StoreWallet(walletID, walletName, walletData)
 	require.Nil(t, err)
-	err = store.StoreAccount(walletID, walletName, accountID, accountName, data)
+	err = store.StoreAccount(walletID, accountID, accountName, accountData)
 	require.Nil(t, err)
 
 	// Try to store account with the same name but different ID; should fail
-	err = store.StoreAccount(walletID, walletName, uuid.New(), accountName, data)
+	err = store.StoreAccount(walletID, uuid.New(), accountName, accountData)
 	assert.NotNil(t, err)
 
 	// Try to store account with the same name and same ID; should succeed
-	err = store.StoreAccount(walletID, walletName, accountID, accountName, data)
+	err = store.StoreAccount(walletID, accountID, accountName, accountData)
 	assert.Nil(t, err)
 }
 
@@ -86,10 +91,12 @@ func TestRetrieveNonExistentAccount(t *testing.T) {
 	store := filesystem.New(filesystem.WithLocation(path))
 
 	walletID := uuid.New()
-	walletName := "test wallet"
 	accountName := "test account"
 
-	_, err := store.RetrieveAccount(walletID, walletName, accountName)
+	_, err := store.RetrieveAccount(walletID, accountName)
+	assert.NotNil(t, err)
+
+	_, err = store.RetrieveAccountByID(walletID, uuid.New())
 	assert.NotNil(t, err)
 }
 
@@ -100,11 +107,10 @@ func TestStoreNonExistentAccount(t *testing.T) {
 	store := filesystem.New(filesystem.WithLocation(path))
 
 	walletID := uuid.New()
-	walletName := "test wallet"
 	accountID := uuid.New()
 	accountName := "test account"
 	data := []byte(fmt.Sprintf(`"uuid":%q,"name":%q}`, accountID, accountName))
 
-	err := store.StoreAccount(walletID, walletName, accountID, accountName, data)
+	err := store.StoreAccount(walletID, accountID, accountName, data)
 	assert.NotNil(t, err)
 }

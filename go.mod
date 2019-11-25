@@ -8,5 +8,5 @@ require (
 	github.com/shibukawa/configdir v0.0.0-20170330084843-e180dbdc8da0
 	github.com/stretchr/testify v1.4.0
 	github.com/wealdtech/go-ecodec v1.0.0
-	github.com/wealdtech/go-eth2-wallet-types v1.4.0
+	github.com/wealdtech/go-eth2-wallet-types v1.5.0
 )
