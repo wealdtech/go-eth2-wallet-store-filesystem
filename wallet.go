@@ -1,4 +1,4 @@
-// Copyright © 2019 Weald Technology Trading
+// Copyright 2019, 2020 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,9 +15,7 @@ package filesystem
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"os"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -27,15 +25,10 @@ import (
 // Note that this will overwrite any existing data; it is up to higher-level functions to check for the presence of a wallet with
 // the wallet name and handle clashes accordingly.
 func (s *Store) StoreWallet(walletID uuid.UUID, walletName string, data []byte) error {
-	path := s.walletPath(walletID)
-	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		err = os.MkdirAll(path, 0700)
-		if err != nil {
-			return fmt.Errorf("failed to create wallet at %s", path)
-		}
+	if err := s.ensureWalletPathExists(walletID); err != nil {
+		return err
 	}
-	data, err = s.encryptIfRequired(data)
+	data, err := s.encryptIfRequired(data)
 	if err != nil {
 		return err
 	}

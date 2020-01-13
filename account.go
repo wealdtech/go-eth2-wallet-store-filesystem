@@ -1,4 +1,4 @@
-// Copyright © 2019 Weald Technology Trading
+// Copyright 2019, 2020 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,7 +14,6 @@
 package filesystem
 
 import (
-	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"path/filepath"
@@ -25,65 +24,34 @@ import (
 // StoreAccount stores an account.  It will fail if it cannot store the data.
 // Note this will overwrite an existing account with the same ID.  It will not, however, allow multiple accounts with the same
 // name to co-exist in the same wallet.
-func (s *Store) StoreAccount(walletID uuid.UUID, accountID uuid.UUID, accountName string, data []byte) error {
+func (s *Store) StoreAccount(walletID uuid.UUID, accountID uuid.UUID, data []byte) error {
 	// Ensure the wallet exists
 	_, err := s.RetrieveWalletByID(walletID)
 	if err != nil {
 		return errors.New("unknown wallet")
 	}
 
-	// See if an account with this name already exists
-	existingAccount, err := s.RetrieveAccount(walletID, accountName)
-	if err == nil {
-		// It does; they need to have the same ID for us to overwrite it
-		info := &struct {
-			ID string `json:"uuid"`
-		}{}
-		err := json.Unmarshal(existingAccount, info)
-		if err != nil {
-			return err
-		}
-		if info.ID != accountID.String() {
-			return errors.New("account already exists")
-		}
-	}
-
 	data, err = s.encryptIfRequired(data)
 	if err != nil {
 		return err
 	}
-
-	// Store the data
 	path := s.accountPath(walletID, accountID)
 	return ioutil.WriteFile(filepath.FromSlash(path), data, 0700)
 }
 
-// RetrieveAccount retrieves account-level data.  It will fail if it cannot retrieve the data.
-func (s *Store) RetrieveAccount(walletID uuid.UUID, accountName string) ([]byte, error) {
-	for data := range s.RetrieveAccounts(walletID) {
-		info := &struct {
-			Name string `json:"name"`
-		}{}
-		err := json.Unmarshal(data, info)
-		if err == nil && info.Name == accountName {
-			return data, nil
-		}
+// RetrieveAccount retrieves account-level data.  It will return an error if it cannot retrieve the data.
+func (s *Store) RetrieveAccount(walletID uuid.UUID, accountID uuid.UUID) ([]byte, error) {
+	path := s.accountPath(walletID, accountID)
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		// TODO handle specific errors such as not found
+		return nil, errors.New("account not found")
 	}
-	return nil, errors.New("account not found")
-}
-
-// RetrieveAccountByID retrieves account-level data.  It will fail if it cannot retrieve the data.
-func (s *Store) RetrieveAccountByID(walletID uuid.UUID, accountID uuid.UUID) ([]byte, error) {
-	for data := range s.RetrieveAccounts(walletID) {
-		info := &struct {
-			ID uuid.UUID `json:"uuid"`
-		}{}
-		err := json.Unmarshal(data, info)
-		if err == nil && info.ID == accountID {
-			return data, nil
-		}
+	data, err = s.decryptIfRequired(data)
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("account not found")
+	return data, nil
 }
 
 // RetrieveAccounts retrieves all account-level data for a wallet.
@@ -94,6 +62,9 @@ func (s *Store) RetrieveAccounts(walletID uuid.UUID) <-chan []byte {
 		if err == nil {
 			for _, file := range files {
 				if file.Name() == walletID.String() {
+					continue
+				}
+				if file.Name() == "index" {
 					continue
 				}
 				accountID, err := uuid.Parse(file.Name())
