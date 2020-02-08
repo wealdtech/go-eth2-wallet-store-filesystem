@@ -80,3 +80,8 @@ func New(opts ...Option) types.Store {
 func (s *Store) Name() string {
 	return "filesystem"
 }
+
+// Location returns the location of this store.
+func (s *Store) Location() string {
+	return s.location
+}
