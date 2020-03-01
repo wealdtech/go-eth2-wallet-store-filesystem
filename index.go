@@ -21,13 +21,17 @@ import (
 
 // StoreAccountsIndex stores the account index.
 func (s *Store) StoreAccountsIndex(walletID uuid.UUID, data []byte) error {
-	if err := s.ensureWalletPathExists(walletID); err != nil {
+	var err error
+	if err = s.ensureWalletPathExists(walletID); err != nil {
 		return err
 	}
 
-	data, err := s.encryptIfRequired(data)
-	if err != nil {
-		return err
+	// Do not encrypt empty index.
+	if len(data) != 2 {
+		data, err = s.encryptIfRequired(data)
+		if err != nil {
+			return err
+		}
 	}
 
 	path := s.walletIndexPath(walletID)
@@ -40,6 +44,10 @@ func (s *Store) RetrieveAccountsIndex(walletID uuid.UUID) ([]byte, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
+	}
+	// Do not decrypt empty index.
+	if len(data) == 2 {
+		return data, nil
 	}
 	return s.decryptIfRequired(data)
 }

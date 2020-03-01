@@ -18,7 +18,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	filesystem "github.com/wealdtech/go-eth2-wallet-store-filesystem"
-	types "github.com/wealdtech/go-eth2-wallet-types"
+	wtypes "github.com/wealdtech/go-eth2-wallet-types/v2"
 )
 
 func TestNew(t *testing.T) {
@@ -29,7 +29,7 @@ func TestNew(t *testing.T) {
 	store = filesystem.New(filesystem.WithLocation("test"), filesystem.WithPassphrase([]byte("secret")))
 	assert.Equal(t, "filesystem", store.Name())
 
-	storeLocationProvider, ok := store.(types.StoreLocationProvider)
+	storeLocationProvider, ok := store.(wtypes.StoreLocationProvider)
 	assert.True(t, ok)
 	assert.Equal(t, "test", storeLocationProvider.Location())
 }

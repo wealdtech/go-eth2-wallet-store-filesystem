@@ -15,7 +15,7 @@ package filesystem
 
 import (
 	"github.com/shibukawa/configdir"
-	types "github.com/wealdtech/go-eth2-wallet-types"
+	wtypes "github.com/wealdtech/go-eth2-wallet-types/v2"
 )
 
 // options are the options for the filesystem store.
@@ -62,7 +62,7 @@ func defaultLocation() string {
 
 // New creates a new filesystem store.
 // If the path is not supplied a default path is used.
-func New(opts ...Option) types.Store {
+func New(opts ...Option) wtypes.Store {
 	options := options{
 		location: defaultLocation(),
 	}

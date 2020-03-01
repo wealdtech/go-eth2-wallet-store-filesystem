@@ -14,11 +14,19 @@
 package filesystem
 
 import (
+	"errors"
+
 	"github.com/wealdtech/go-ecodec"
 )
 
 // encryptIfRequired encrypts data if required.
 func (s *Store) encryptIfRequired(data []byte) ([]byte, error) {
+	if len(data) == 0 {
+		return data, nil
+	}
+	if len(data) < 16 {
+		return nil, errors.New("data must be at least 16 bytes")
+	}
 	var err error
 	if len(s.passphrase) > 0 {
 		data, err = ecodec.Encrypt(data, s.passphrase)
@@ -28,6 +36,12 @@ func (s *Store) encryptIfRequired(data []byte) ([]byte, error) {
 
 // decryptIfRequired decrypts data if required.
 func (s *Store) decryptIfRequired(data []byte) ([]byte, error) {
+	if len(data) == 0 {
+		return data, nil
+	}
+	if len(data) < 16 {
+		return nil, errors.New("data must be at least 16 bytes")
+	}
 	var err error
 	if len(s.passphrase) > 0 {
 		data, err = ecodec.Decrypt(data, s.passphrase)
