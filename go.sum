@@ -12,6 +12,8 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/dgraph-io/ristretto v0.0.1/go.mod h1:T40EBc7CJke8TkpiYfGGKAeFjSaxuFXhuXRyumBd6RE=
 github.com/dgraph-io/ristretto v0.0.2 h1:a5WaUrDa0qm0YrAAS1tUykT5El3kt62KNZZeMxQn3po=
 github.com/dgraph-io/ristretto v0.0.2/go.mod h1:KPxhHT9ZxKefz+PCeOGsrHpl1qZ7i70dGTu2u+Ahh6E=
+github.com/dgraph-io/ristretto v0.0.3 h1:jh22xisGBjrEVnRZ1DVTpBVQm0Xndu8sMl0CWDzSIBI=
+github.com/dgraph-io/ristretto v0.0.3/go.mod h1:KPxhHT9ZxKefz+PCeOGsrHpl1qZ7i70dGTu2u+Ahh6E=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2 h1:tdlZCpZ/P9DhczCTSixgIKmwPv6+wP5DGjqLYw5SUiA=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
@@ -35,6 +37,8 @@ github.com/grpc-ecosystem/grpc-gateway v1.13.0/go.mod h1:8XEsbTttt/W+VvjtQhLACqC
 github.com/herumi/bls-eth-go-binary v0.0.0-20200621110855-298ffb6847bc/go.mod h1:luAnRm3OsMQeokhGzpYmc0ZKwawY7o87PUEP11Z7r7U=
 github.com/herumi/bls-eth-go-binary v0.0.0-20200703070911-61704dac4ad1 h1:da7FT3Bhp8GCx6TwDPQio/7GLRLR5hcZvoRb89hfc08=
 github.com/herumi/bls-eth-go-binary v0.0.0-20200703070911-61704dac4ad1/go.mod h1:luAnRm3OsMQeokhGzpYmc0ZKwawY7o87PUEP11Z7r7U=
+github.com/herumi/bls-eth-go-binary v0.0.0-20200706085701-832d8c2c0f7d h1:P8yaFmLwc5ZlUx2sHuawcdQvpv5/0GM+WEGJ07ljN3g=
+github.com/herumi/bls-eth-go-binary v0.0.0-20200706085701-832d8c2c0f7d/go.mod h1:luAnRm3OsMQeokhGzpYmc0ZKwawY7o87PUEP11Z7r7U=
 github.com/kisielk/errcheck v1.2.0/go.mod h1:/BMXB+zMLi60iA8Vv6Ksmxu/1UDYcXs4uQLJ+jE2L00=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
@@ -75,8 +79,12 @@ github.com/wealdtech/go-ecodec v1.1.0 h1:yggrTSckcPJRaxxOxQF7FPm21kgE8WA6+f5jdq5
 github.com/wealdtech/go-ecodec v1.1.0/go.mod h1:PSdBFEB6cltdT7V4E1jbboufMZTZXcQOKG/2PeEjKK4=
 github.com/wealdtech/go-eth2-types/v2 v2.4.3 h1:VFYVYw9J2P/HFXi7T9HX7vzM+xx6BZ4od5PlVsUP5OE=
 github.com/wealdtech/go-eth2-types/v2 v2.4.3/go.mod h1:hhKa4ZFaNU2fwUjEh8GYr8wKg5D1W4QyxZ3xpsb/2hw=
+github.com/wealdtech/go-eth2-types/v2 v2.5.0 h1:L8sl3yoICAbn3134CBLNUt0o5h2voe0Es2KD5O9r8YQ=
+github.com/wealdtech/go-eth2-types/v2 v2.5.0/go.mod h1:321w9X26lAnNa/lQJi2A6Lap5IsNORoLwFPoJ1i8QvY=
 github.com/wealdtech/go-eth2-wallet-types/v2 v2.3.0 h1:PsCvp/lw7+h8Q0V3jL0f+/w2VmgS7m0mH48lbv/c2LY=
 github.com/wealdtech/go-eth2-wallet-types/v2 v2.3.0/go.mod h1:SLST6Pw/2wOEfsMYvIQjWlxbWX+jaZu8jIEbZJc4K5Q=
+github.com/wealdtech/go-eth2-wallet-types/v2 v2.5.0 h1:J29mbkSCUMl2xdu8Lg6U+JptFGfmli6xl04DAHtq9aM=
+github.com/wealdtech/go-eth2-wallet-types/v2 v2.5.0/go.mod h1:X9kYUH/E5YMqFMZ4xL6MJanABUkJGaH/yPZRT2o+yYA=
 github.com/wealdtech/go-indexer v1.0.0 h1:/S4rfWQbSOnnYmwnvuTVatDibZ8o1s9bmTCHO16XINg=
 github.com/wealdtech/go-indexer v1.0.0/go.mod h1:u1cjsbsOXsm5jzJDyLmZY7GsrdX8KYXKBXkZcAmk3Zg=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
