@@ -19,7 +19,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +27,6 @@ import (
 )
 
 func TestStoreRetrieveEncryptedWallet(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%d", t.Name(), rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path), filesystem.WithPassphrase([]byte("test")))
@@ -53,7 +51,6 @@ func TestStoreRetrieveEncryptedWallet(t *testing.T) {
 }
 
 func TestStoreRetrieveEncryptedAccount(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%d", t.Name(), rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path), filesystem.WithPassphrase([]byte("test")))
@@ -82,7 +79,6 @@ func TestStoreRetrieveEncryptedAccount(t *testing.T) {
 }
 
 func TestBadWalletKey(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%d", t.Name(), rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path), filesystem.WithPassphrase([]byte("test")))

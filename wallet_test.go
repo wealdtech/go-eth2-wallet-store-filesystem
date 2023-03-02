@@ -19,7 +19,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +27,6 @@ import (
 )
 
 func TestStoreRetrieveWallet(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("TestStoreRetrieveWallet-%d", rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path))
@@ -48,7 +46,6 @@ func TestStoreRetrieveWallet(t *testing.T) {
 }
 
 func TestRetrieveNonExistentWallet(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("TestRetrieveNonExistentWallet-%d", rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path))

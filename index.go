@@ -1,4 +1,4 @@
-// Copyright 2019, 2020 Weald Technology Trading
+// Copyright 2019 - 2023 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,36 +14,37 @@
 package filesystem
 
 import (
-	"io/ioutil"
+	"os"
 
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 // StoreAccountsIndex stores the account index.
 func (s *Store) StoreAccountsIndex(walletID uuid.UUID, data []byte) error {
 	var err error
 	if err = s.ensureWalletPathExists(walletID); err != nil {
-		return err
+		return errors.Wrap(err, "wallet path does not exist")
 	}
 
 	// Do not encrypt empty index.
 	if len(data) != 2 {
 		data, err = s.encryptIfRequired(data)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to encrypt index")
 		}
 	}
 
 	path := s.walletIndexPath(walletID)
-	return ioutil.WriteFile(path, data, 0700)
+	return os.WriteFile(path, data, 0o700)
 }
 
 // RetrieveAccountsIndex retrieves the account index.
 func (s *Store) RetrieveAccountsIndex(walletID uuid.UUID) ([]byte, error) {
 	path := s.walletIndexPath(walletID)
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to read wallet index")
 	}
 	// Do not decrypt empty index.
 	if len(data) == 2 {

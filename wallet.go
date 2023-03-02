@@ -1,4 +1,4 @@
-// Copyright 2019, 2020 Weald Technology Trading
+// Copyright 2019 - 2023 Weald Technology Trading
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,7 +15,7 @@ package filesystem
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -26,13 +26,13 @@ import (
 // the wallet name and handle clashes accordingly.
 func (s *Store) StoreWallet(walletID uuid.UUID, walletName string, data []byte) error {
 	if err := s.ensureWalletPathExists(walletID); err != nil {
-		return err
+		return errors.Wrap(err, "wallet path does not exist")
 	}
 	data, err := s.encryptIfRequired(data)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to encrypt wallet")
 	}
-	return ioutil.WriteFile(s.walletHeaderPath(walletID), data, 0700)
+	return os.WriteFile(s.walletHeaderPath(walletID), data, 0o700)
 }
 
 // RetrieveWallet retrieves wallet-level data.  It will fail if it cannot retrieve the data.
@@ -67,7 +67,7 @@ func (s *Store) RetrieveWalletByID(walletID uuid.UUID) ([]byte, error) {
 func (s *Store) RetrieveWallets() <-chan []byte {
 	ch := make(chan []byte, 1024)
 	go func() {
-		dirs, err := ioutil.ReadDir(s.location)
+		dirs, err := os.ReadDir(s.location)
 		if err == nil {
 			for _, dir := range dirs {
 				if !dir.IsDir() {
@@ -77,7 +77,7 @@ func (s *Store) RetrieveWallets() <-chan []byte {
 				if err != nil {
 					continue
 				}
-				data, err := ioutil.ReadFile(s.walletHeaderPath(walletID))
+				data, err := os.ReadFile(s.walletHeaderPath(walletID))
 				if err != nil {
 					continue
 				}

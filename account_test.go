@@ -19,7 +19,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +27,6 @@ import (
 )
 
 func TestStoreRetrieveAccount(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%d", t.Name(), rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path))
@@ -55,7 +53,6 @@ func TestStoreRetrieveAccount(t *testing.T) {
 }
 
 func TestDuplicateAccounts(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%d", t.Name(), rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path))
@@ -74,7 +71,6 @@ func TestDuplicateAccounts(t *testing.T) {
 }
 
 func TestRetrieveNonExistentAccount(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("TestRetrieveNonExistentAccount-%d", rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path))
@@ -87,7 +83,6 @@ func TestRetrieveNonExistentAccount(t *testing.T) {
 }
 
 func TestStoreNonExistentAccount(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("TestStoreNonExistentAccount-%d", rand.Int31()))
 	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path))

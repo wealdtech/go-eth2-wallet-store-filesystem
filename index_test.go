@@ -19,7 +19,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
@@ -28,9 +27,8 @@ import (
 )
 
 func TestStoreRetrieveIndex(t *testing.T) {
-	rand.Seed(time.Now().Unix())
 	path := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%d", t.Name(), rand.Int31()))
-	//	defer os.RemoveAll(path)
+	defer os.RemoveAll(path)
 	store := filesystem.New(filesystem.WithLocation(path))
 
 	walletID := uuid.New()
