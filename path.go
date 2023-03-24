@@ -41,7 +41,7 @@ func (s *Store) ensureWalletPathExists(walletID uuid.UUID) error {
 	path := s.walletPath(walletID)
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		err = os.MkdirAll(path, 0700)
+		err = os.MkdirAll(path, 0o700)
 		if err != nil {
 			return fmt.Errorf("failed to create wallet directory at %s", path)
 		}

@@ -24,7 +24,7 @@ type options struct {
 	location   string
 }
 
-// Option gives options to New
+// Option gives options to New.
 type Option interface {
 	apply(*options)
 }

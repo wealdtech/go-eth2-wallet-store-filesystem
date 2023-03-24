@@ -36,7 +36,7 @@ func (s *Store) StoreAccountsIndex(walletID uuid.UUID, data []byte) error {
 	}
 
 	path := s.walletIndexPath(walletID)
-	return os.WriteFile(path, data, 0o700)
+	return os.WriteFile(path, data, 0o600)
 }
 
 // RetrieveAccountsIndex retrieves the account index.

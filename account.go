@@ -36,7 +36,7 @@ func (s *Store) StoreAccount(walletID uuid.UUID, accountID uuid.UUID, data []byt
 		return errors.Wrap(err, "failed to encrypt account")
 	}
 	path := s.accountPath(walletID, accountID)
-	return os.WriteFile(filepath.FromSlash(path), data, 0o700)
+	return os.WriteFile(filepath.FromSlash(path), data, 0o600)
 }
 
 // RetrieveAccount retrieves account-level data.  It will return an error if it cannot retrieve the data.

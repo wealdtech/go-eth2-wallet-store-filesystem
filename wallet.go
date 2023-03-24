@@ -24,7 +24,7 @@ import (
 // StoreWallet stores wallet-level data.  It will fail if it cannot store the data.
 // Note that this will overwrite any existing data; it is up to higher-level functions to check for the presence of a wallet with
 // the wallet name and handle clashes accordingly.
-func (s *Store) StoreWallet(walletID uuid.UUID, walletName string, data []byte) error {
+func (s *Store) StoreWallet(walletID uuid.UUID, _ string, data []byte) error {
 	if err := s.ensureWalletPathExists(walletID); err != nil {
 		return errors.Wrap(err, "wallet path does not exist")
 	}
@@ -32,7 +32,7 @@ func (s *Store) StoreWallet(walletID uuid.UUID, walletName string, data []byte) 
 	if err != nil {
 		return errors.Wrap(err, "failed to encrypt wallet")
 	}
-	return os.WriteFile(s.walletHeaderPath(walletID), data, 0o700)
+	return os.WriteFile(s.walletHeaderPath(walletID), data, 0o600)
 }
 
 // RetrieveWallet retrieves wallet-level data.  It will fail if it cannot retrieve the data.
