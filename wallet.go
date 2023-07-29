@@ -32,6 +32,7 @@ func (s *Store) StoreWallet(walletID uuid.UUID, _ string, data []byte) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to encrypt wallet")
 	}
+
 	return os.WriteFile(s.walletHeaderPath(walletID), data, 0o600)
 }
 
@@ -46,6 +47,7 @@ func (s *Store) RetrieveWallet(walletName string) ([]byte, error) {
 			return data, nil
 		}
 	}
+
 	return nil, errors.New("wallet not found")
 }
 
@@ -60,6 +62,7 @@ func (s *Store) RetrieveWalletByID(walletID uuid.UUID) ([]byte, error) {
 			return data, nil
 		}
 	}
+
 	return nil, errors.New("wallet not found")
 }
 
@@ -67,28 +70,30 @@ func (s *Store) RetrieveWalletByID(walletID uuid.UUID) ([]byte, error) {
 func (s *Store) RetrieveWallets() <-chan []byte {
 	ch := make(chan []byte, 1024)
 	go func() {
+		defer close(ch)
 		dirs, err := os.ReadDir(s.location)
-		if err == nil {
-			for _, dir := range dirs {
-				if !dir.IsDir() {
-					continue
-				}
-				walletID, err := uuid.Parse(dir.Name())
-				if err != nil {
-					continue
-				}
-				data, err := os.ReadFile(s.walletHeaderPath(walletID))
-				if err != nil {
-					continue
-				}
-				data, err = s.decryptIfRequired(data)
-				if err != nil {
-					continue
-				}
-				ch <- data
-			}
+		if err != nil {
+			return
 		}
-		close(ch)
+		for _, dir := range dirs {
+			if !dir.IsDir() {
+				continue
+			}
+			walletID, err := uuid.Parse(dir.Name())
+			if err != nil {
+				continue
+			}
+			data, err := os.ReadFile(s.walletHeaderPath(walletID))
+			if err != nil {
+				continue
+			}
+			data, err = s.decryptIfRequired(data)
+			if err != nil {
+				continue
+			}
+			ch <- data
+		}
 	}()
+
 	return ch
 }

@@ -25,7 +25,7 @@ import (
 // Note this will overwrite an existing account with the same ID.  It will not, however, allow multiple accounts with the same
 // name to co-exist in the same wallet.
 func (s *Store) StoreAccount(walletID uuid.UUID, accountID uuid.UUID, data []byte) error {
-	// Ensure the wallet exists
+	// Ensure the wallet exists.
 	_, err := s.RetrieveWalletByID(walletID)
 	if err != nil {
 		return errors.Wrap(err, "unable to retrieve wallet")
@@ -36,6 +36,7 @@ func (s *Store) StoreAccount(walletID uuid.UUID, accountID uuid.UUID, data []byt
 		return errors.Wrap(err, "failed to encrypt account")
 	}
 	path := s.accountPath(walletID, accountID)
+
 	return os.WriteFile(filepath.FromSlash(path), data, 0o600)
 }
 
@@ -50,6 +51,7 @@ func (s *Store) RetrieveAccount(walletID uuid.UUID, accountID uuid.UUID) ([]byte
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to decrypt account")
 	}
+
 	return data, nil
 }
 
@@ -57,31 +59,34 @@ func (s *Store) RetrieveAccount(walletID uuid.UUID, accountID uuid.UUID) ([]byte
 func (s *Store) RetrieveAccounts(walletID uuid.UUID) <-chan []byte {
 	ch := make(chan []byte, 1024)
 	go func() {
+		defer close(ch)
 		files, err := os.ReadDir(s.walletPath(walletID))
-		if err == nil {
-			for _, file := range files {
-				if file.Name() == walletID.String() {
-					continue
-				}
-				if file.Name() == "index" {
-					continue
-				}
-				accountID, err := uuid.Parse(file.Name())
-				if err != nil {
-					continue
-				}
-				data, err := os.ReadFile(s.accountPath(walletID, accountID))
-				if err != nil {
-					continue
-				}
-				data, err = s.decryptIfRequired(data)
-				if err != nil {
-					continue
-				}
-				ch <- data
-			}
+		if err != nil {
+			return
 		}
-		close(ch)
+
+		for _, file := range files {
+			if file.Name() == walletID.String() {
+				continue
+			}
+			if file.Name() == "index" {
+				continue
+			}
+			accountID, err := uuid.Parse(file.Name())
+			if err != nil {
+				continue
+			}
+			data, err := os.ReadFile(s.accountPath(walletID, accountID))
+			if err != nil {
+				continue
+			}
+			data, err = s.decryptIfRequired(data)
+			if err != nil {
+				continue
+			}
+			ch <- data
+		}
 	}()
+
 	return ch
 }

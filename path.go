@@ -1,4 +1,4 @@
-// Copyright 2019, 2020 Weald Technology Trading
+// Copyright 2019 - 2023 Weald Technology Trading.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -46,5 +46,6 @@ func (s *Store) ensureWalletPathExists(walletID uuid.UUID) error {
 			return fmt.Errorf("failed to create wallet directory at %s", path)
 		}
 	}
+
 	return nil
 }

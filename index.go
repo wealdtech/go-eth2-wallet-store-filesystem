@@ -36,6 +36,7 @@ func (s *Store) StoreAccountsIndex(walletID uuid.UUID, data []byte) error {
 	}
 
 	path := s.walletIndexPath(walletID)
+
 	return os.WriteFile(path, data, 0o600)
 }
 
@@ -50,5 +51,6 @@ func (s *Store) RetrieveAccountsIndex(walletID uuid.UUID) ([]byte, error) {
 	if len(data) == 2 {
 		return data, nil
 	}
+
 	return s.decryptIfRequired(data)
 }
