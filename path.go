@@ -37,6 +37,10 @@ func (s *Store) walletIndexPath(walletID uuid.UUID) string {
 	return filepath.FromSlash(filepath.Join(s.walletPath(walletID), "index"))
 }
 
+func (s *Store) walletBatchPath(walletID uuid.UUID) string {
+	return filepath.FromSlash(filepath.Join(s.walletPath(walletID), "batch"))
+}
+
 func (s *Store) ensureWalletPathExists(walletID uuid.UUID) error {
 	path := s.walletPath(walletID)
 	_, err := os.Stat(path)
