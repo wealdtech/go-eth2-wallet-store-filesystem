@@ -65,26 +65,27 @@ func (s *Store) RetrieveAccounts(walletID uuid.UUID) <-chan []byte {
 			return
 		}
 
+		walletName := walletID.String()
 		for _, file := range files {
-			if file.Name() == walletID.String() {
+			switch file.Name() {
+			case walletName, "index", "batch":
+				// Not accounts.
 				continue
+			default:
+				accountID, err := uuid.Parse(file.Name())
+				if err != nil {
+					continue
+				}
+				data, err := os.ReadFile(s.accountPath(walletID, accountID))
+				if err != nil {
+					continue
+				}
+				data, err = s.decryptIfRequired(data)
+				if err != nil {
+					continue
+				}
+				ch <- data
 			}
-			if file.Name() == "index" {
-				continue
-			}
-			accountID, err := uuid.Parse(file.Name())
-			if err != nil {
-				continue
-			}
-			data, err := os.ReadFile(s.accountPath(walletID, accountID))
-			if err != nil {
-				continue
-			}
-			data, err = s.decryptIfRequired(data)
-			if err != nil {
-				continue
-			}
-			ch <- data
 		}
 	}()
 
