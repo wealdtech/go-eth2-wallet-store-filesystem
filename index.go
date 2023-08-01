@@ -22,10 +22,10 @@ import (
 
 // StoreAccountsIndex stores the account index.
 func (s *Store) StoreAccountsIndex(walletID uuid.UUID, data []byte) error {
-	// Ensure wallet exists.
-	_, err := s.RetrieveWalletByID(walletID)
-	if err != nil {
-		return err
+	// Ensure wallet path exists.
+	var err error
+	if err = s.ensureWalletPathExists(walletID); err != nil {
+		return errors.Wrap(err, "wallet path does not exist")
 	}
 
 	// Do not encrypt empty index.
